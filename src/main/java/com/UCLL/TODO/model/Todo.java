@@ -26,6 +26,10 @@ public class Todo {
     @Column(nullable = false)
     private Date expiryDate;
 
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private User user;
+
     public Todo() {}
 
     public long getTodoId() {

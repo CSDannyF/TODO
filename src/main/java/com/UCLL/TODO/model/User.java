@@ -3,6 +3,9 @@ package com.UCLL.TODO.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class User {
     @Id
@@ -24,6 +27,9 @@ public class User {
     @NotBlank
     @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Todo> todos = new ArrayList<>();
 
     public User() {}
 
