@@ -2,6 +2,7 @@ package com.UCLL.TODO.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -18,7 +19,7 @@ public class Todo {
     @Column
     private String comment;
 
-    @NotBlank
+    @NotNull
     @Column(nullable = false)
     private TodoStatus status;
 
@@ -27,14 +28,22 @@ public class Todo {
     private Date expiryDate;
 
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Todo() {}
+    public Todo(String title, String comment, TodoStatus status, Date expiryDate) {
+        this.title = title;
+        this.comment = comment;
+        this.status = status;
+        this.expiryDate = expiryDate;
+    }
 
     public long getTodoId() {
         return todoId;
     }
+
+    public void setTodoId(long id) { this.todoId = id; }
 
     public String getTitle() {
         return title;

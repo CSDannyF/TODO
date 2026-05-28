@@ -1,6 +1,7 @@
 package com.UCLL.TODO.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
-    @NotBlank
-    @Column(nullable = false)
+    @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank
