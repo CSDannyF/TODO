@@ -3,6 +3,7 @@ package com.UCLL.TODO.controller;
 import com.UCLL.TODO.exception.TodoNotFoundException;
 import com.UCLL.TODO.exception.UserNotFoundException;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -46,5 +47,14 @@ public class GlobalErrorHandling {
         Map<String, String> map = new HashMap<>();
         map.put("message", "Invalid value provided");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+    }
+
+    // https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/dao/DataIntegrityViolationException.html
+    // handler als data niet uniek is en deze uniek moet zijn zoals de email
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        Map<String, String> map = new HashMap<>();
+        map.put("message", "Email already in use");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map);
     }
 }

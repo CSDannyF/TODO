@@ -73,7 +73,7 @@ public class TodoServiceImplementation implements TodoService {
         this.todoRepository.deleteTodo(todoId);
     }
 
-    protected TodoResponse mapToTodoResponse(Todo todo) {
+    public TodoResponse mapToTodoResponse(Todo todo) {
         return new TodoResponse(todo.getTodoId(), todo.getTitle(), todo.getComment(), todo.getStatus(), todo.getExpiryDate());
     }
 }

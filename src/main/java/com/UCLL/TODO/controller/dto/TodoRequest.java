@@ -10,6 +10,5 @@ import java.util.Date;
 public record TodoRequest(
         @NotBlank String title,
         String comment,         // optioneel
-        @NotNull TodoStatus status,
         @NotNull Date expiryDate
         ) {}
