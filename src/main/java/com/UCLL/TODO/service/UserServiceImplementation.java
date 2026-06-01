@@ -8,6 +8,8 @@ import com.UCLL.TODO.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserServiceImplementation implements UserService {
     private UserRepository userRepository;
@@ -16,6 +18,7 @@ public class UserServiceImplementation implements UserService {
     public UserServiceImplementation(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
     @Override
     public UserResponse getUserByEmail(String userEmail) throws UserNotFoundException {
         return mapToUserResponse(this.userRepository.getUserByEmail(userEmail)
@@ -34,15 +37,13 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public UserResponse updateUserById(long id, UserRegistration userUpdate) throws UserNotFoundException {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException(id);
-        }
-        User user = new User(
-                userUpdate.firstName(),
-                userUpdate.lastName(),
-                userUpdate.email(),
-                userUpdate.password()
-        );
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+
+        user.setFirstName(userUpdate.firstName());
+        user.setLastName(userUpdate.lastName());
+        user.setEmail(userUpdate.email());
+        user.setPassword(userUpdate.password());
+
         return mapToUserResponse(userRepository.saveUser(user));
     }
 
@@ -61,5 +62,12 @@ public class UserServiceImplementation implements UserService {
                 user.getLastName(),
                 user.getEmail()
         );
+    }
+
+    @Override
+    public User mapToUser(UserResponse userResponse) {
+        User user = new User();
+        user.setUserId(userResponse.userId());
+        return user;
     }
 }

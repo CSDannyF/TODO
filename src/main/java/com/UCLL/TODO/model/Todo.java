@@ -23,7 +23,7 @@ public class Todo {
     @Column(nullable = false)
     private TodoStatus status;
 
-    @NotBlank
+    @NotNull
     @Column(nullable = false)
     private Date expiryDate;
 
@@ -75,5 +75,9 @@ public class Todo {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TodoRepositoryImplementation implements TodoRepository {
@@ -22,14 +23,14 @@ public class TodoRepositoryImplementation implements TodoRepository {
     }
 
     @Override
+    public Optional<Todo> findById(long id) {
+        return todoJpaRepository.findById(id);
+    }
+
+    @Override
     public Todo saveTodo(Todo todo) {
         return this.todoJpaRepository.save(todo);
     }
-
-    /*@Override
-    public Todo updateTodo(long id, Todo todo) {
-        return null;
-    }*/
 
     @Override
     public void deleteTodo(long id) {

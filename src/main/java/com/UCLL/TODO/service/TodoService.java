@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface TodoService {
     List<TodoResponse> getAllTodosByUserEmail(String userEmail);
-    TodoResponse createTodo(TodoRequest todoRequest);
+    TodoResponse createTodo(String userEmail, TodoRequest todoRequest);
     TodoResponse updateTodo(long id, TodoUpdate todoUpdate);
     void deleteTodo(long todoId);
 }

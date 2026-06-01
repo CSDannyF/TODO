@@ -11,6 +11,5 @@ public record TodoRequest(
         @NotBlank String title,
         String comment,         // optioneel
         @NotNull TodoStatus status,
-        @NotNull Date expiryDate,
-        @NotBlank String userEmail // verdwijnt in deel 2 bij Spring Security
+        @NotNull Date expiryDate
         ) {}

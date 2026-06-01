@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "user")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
@@ -41,6 +43,11 @@ public class User {
         this.password = password;
     }
 
+    public void addTodo(Todo todo) {
+        this.todos.add(todo);
+        todo.setUser(this);
+    }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -71,5 +78,9 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }
