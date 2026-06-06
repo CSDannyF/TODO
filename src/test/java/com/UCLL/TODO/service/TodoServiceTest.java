@@ -98,7 +98,9 @@ public class TodoServiceTest {
         Mockito.when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
         Mockito.when(todoRepository.saveTodo(Mockito.any(Todo.class))).thenReturn(todo);
 
-        var result = todoService.updateTodo(1, todoUpdate);
+        todo.setUser(existingUser);
+
+        var result = todoService.updateTodo(1, todoUpdate, userResponse.email());
 
         Assertions.assertEquals(TodoStatus.DONE, result.status());
         Mockito.verify(todoRepository).saveTodo(Mockito.any());
@@ -108,7 +110,7 @@ public class TodoServiceTest {
     public void givenTodoDoesNotExistWhenUpdating_whenUpdateTodoIsCalled_thenTodoNotFoundExceptionIsThrown() {
         Mockito.when(todoRepository.findById(1L)).thenReturn(Optional.empty());
 
-        var exception = Assertions.assertThrows(TodoNotFoundException.class, () -> todoService.updateTodo(1, todoUpdate));
+        var exception = Assertions.assertThrows(TodoNotFoundException.class, () -> todoService.updateTodo(1, todoUpdate, userResponse.email()));
 
         Assertions.assertEquals("Todo not found for id: 1", exception.getMessage());
         Mockito.verify(todoRepository, Mockito.never()).saveTodo(Mockito.any());

@@ -7,13 +7,14 @@ import com.UCLL.TODO.exception.UserNotFoundException;
 import com.UCLL.TODO.service.TodoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/todos")
+@RequestMapping("/api/v2/todos")
 @Validated
 public class TodoController
 {
@@ -24,24 +25,24 @@ public class TodoController
     }
 
     @GetMapping
-    public List<TodoResponse> getTodosByEmail(@RequestParam String email) throws UserNotFoundException {
-        return todoService.getAllTodosByUserEmail(email);
+    public List<TodoResponse> getTodosByEmail(Authentication authentication) throws UserNotFoundException {
+        return todoService.getAllTodosByUserEmail(authentication.getName());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TodoResponse addTodo(@RequestParam String email,@Valid @RequestBody TodoRequest todoRequest) throws UserNotFoundException {
-        return todoService.createTodo(email, todoRequest);
+    public TodoResponse addTodo(@Valid @RequestBody TodoRequest todoRequest,Authentication authentication) throws UserNotFoundException {
+        return todoService.createTodo(authentication.getName(), todoRequest);
     }
 
     @PutMapping("/{id}")
-    public TodoResponse updateTodo(@PathVariable long id,@Valid @RequestBody TodoUpdate todoUpdate) throws UserNotFoundException {
-        return todoService.updateTodo(id, todoUpdate);
+    public TodoResponse updateTodo(@PathVariable long id,@Valid @RequestBody TodoUpdate todoUpdate, Authentication authentication) throws UserNotFoundException {
+        return todoService.updateTodo(id, todoUpdate, authentication.getName());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTodo(@PathVariable long id) throws UserNotFoundException {
-        todoService.deleteTodo(id);
+    public void deleteTodo(@PathVariable long id, Authentication authentication) throws UserNotFoundException {
+        todoService.deleteTodo(id, authentication.getName());
     }
 }

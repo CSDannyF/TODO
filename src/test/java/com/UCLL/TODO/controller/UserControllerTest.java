@@ -1,8 +1,11 @@
 package com.UCLL.TODO.controller;
 
+import com.UCLL.TODO.config.SecurityConfig;
 import com.UCLL.TODO.controller.dto.UserRegistration;
 import com.UCLL.TODO.controller.dto.UserResponse;
+import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.exception.UserNotFoundException;
+import com.UCLL.TODO.service.CustomUserDetailsService;
 import com.UCLL.TODO.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,12 +14,15 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
 public class UserControllerTest {
 
     @Autowired
@@ -24,6 +30,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -42,7 +51,7 @@ public class UserControllerTest {
         Mockito.when(userService.createUser(userRegistration)).thenReturn(userResponse);
 
         client.post()
-                .uri("/api/v1/users")
+                .uri("/api/v2/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(userRegistration)
@@ -57,7 +66,7 @@ public class UserControllerTest {
     public void givenInvalidUserRegistration_whenCreateUserIsCalled_thenBadRequestIsReturned() throws Exception {
         userRegistration = new UserRegistration("Daniel", "Fernandez", "invalid", "password");
         client.post()
-                .uri("/api/v1/users")
+                .uri("/api/v2/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(userRegistration)
@@ -75,12 +84,15 @@ public class UserControllerTest {
     }
 
     @Test
-    public void givenDuplicateEmailWithUserRegistration_whenCreateUserIsCalled_thenConfictIsReturned() {
+    public void givenDuplicateEmailWithUserRegistration_whenCreateUserIsCalled_thenConfictIsReturned() throws EmailAddressNotUniqueException {
         UserRegistration doubleEmailUser = new UserRegistration("Daniel", "Double", "daniel@gmail.com", "password");
-        Mockito.when(userService.createUser(doubleEmailUser)).thenThrow(DataIntegrityViolationException.class);
+        Mockito.when(userService.createUser(doubleEmailUser)).thenThrow(new EmailAddressNotUniqueException("daniel@gmail.com"));
 
         client.post()
-                .uri("/api/v1/users")
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                })
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(doubleEmailUser)
@@ -89,16 +101,22 @@ public class UserControllerTest {
                 .expectBody().json(
                         """
                                       {
-                                        "message": "Email already in use"
+                                        "message": "A user with e-mail address daniel@gmail.com already exists."
                                       }
                                     """);
         Mockito.verify(userService).createUser(Mockito.any());
     }
 
     @Test
+    @WithMockUser
     public void givenUserWithIdExists_whenDeleteUsersCalled_thenUserIsDeleted() {
+        Mockito.when(userService.getUserByEmail("user")).thenReturn(new UserResponse(1, "Daniel", "Fernandez", "user"));
+
         client.delete()
-                .uri("/api/v1/users/{id}", 1L)
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                })
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -106,11 +124,16 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void givenUserWithDoesNotExist_whenDeleteUserIsCalled_thenNotFoundIsReturned() {
+        Mockito.when(userService.getUserByEmail("user")).thenReturn(new UserResponse(1, "Daniel", "Fernandez", "user"));
         Mockito.doThrow(new UserNotFoundException(1L)).when(userService).deleteUserById(1L);
 
         client.delete()
-                .uri("/api/v1/users/{id}", 1L)
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                })
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody().json(

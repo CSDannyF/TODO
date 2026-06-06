@@ -1,6 +1,8 @@
 package com.UCLL.TODO.controller;
 
+import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.exception.TodoNotFoundException;
+import com.UCLL.TODO.exception.UnauthorizedException;
 import com.UCLL.TODO.exception.UserNotFoundException;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,12 +51,17 @@ public class GlobalErrorHandling {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
     }
 
-    // https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/dao/DataIntegrityViolationException.html
-    // handler als data niet uniek is en deze uniek moet zijn zoals de email
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+    @ExceptionHandler(EmailAddressNotUniqueException.class)
+    public ResponseEntity<Map<String, String>> handleEmailAddressNotUniqueException(EmailAddressNotUniqueException e) {
         Map<String, String> map = new HashMap<>();
-        map.put("message", "Email already in use");
+        map.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(map);
+    }
+
+    @ExceptionHandler({UnauthorizedException.class})
+    public ResponseEntity<Map<String, String>> handleUnauthorizedException(UnauthorizedException e) {
+        Map<String, String> map = new HashMap<>();
+        map.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(map);
     }
 }

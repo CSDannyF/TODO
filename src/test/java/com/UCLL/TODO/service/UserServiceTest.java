@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -20,6 +21,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private BCryptPasswordEncoder encoder;
 
     @InjectMocks
     private UserServiceImplementation userService;
@@ -77,7 +81,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void givenUserDoesNotExistsAndIsDeleted_whenDeletByIdIsCalled_thenUserNotfoundExceptionIsThrown() {
+    public void givenUserDoesNotExistsAndIsDeleted_whenDeleteByIdIsCalled_thenUserNotfoundExceptionIsThrown() {
         Mockito.when(userRepository.existsById(1L)).thenReturn(false);
         var exception = Assertions.assertThrows(UserNotFoundException.class, () -> userService.deleteUserById(1L));
 

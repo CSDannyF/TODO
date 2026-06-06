@@ -5,15 +5,15 @@ import com.UCLL.TODO.model.TodoStatus;
 import com.UCLL.TODO.model.User;
 import com.UCLL.TODO.repository.jpa.TodoJpaRepository;
 import com.UCLL.TODO.repository.jpa.UserJpaRepository;
-import org.aspectj.lang.annotation.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -34,12 +34,15 @@ public class ComponentTest {
     @Autowired
     private TodoJpaRepository todoJpaRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
     private User user;
     private Todo todo;
 
     @BeforeEach
     void setUp() {
-        user = new User("Daniel", "Fernandez", "daniel@gmail.com", "password");
+        user = new User("Daniel", "Fernandez", "daniel@gmail.com", encoder.encode("password"));
         todo = new Todo("Opruimen", "Tuinhuis opruimen", TodoStatus.NOT_STARTED, new Date());
         todo.setUser(user);
 
@@ -56,7 +59,11 @@ public class ComponentTest {
     @Test
     public void givenUserIsInDb_whenCallingGetUserByEmail_thenUserIsReturned() {
         client.get()
-                .uri("/api/v1/users?email={email}", user.getEmail())
+                .uri("/api/v2/users/me", user.getEmail())
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
@@ -75,8 +82,11 @@ public class ComponentTest {
     @Test
     public void givenUserIsPostedInDb_whenCallingCreateUser_thenUserIsPosted() {
         client.post()
-                .uri("/api/v1/users")
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .bodyValue(
                         """
                               {
@@ -108,14 +118,17 @@ public class ComponentTest {
     @Test
     public void givenUserInDatabaseIsUpdated_whenCallingUpdateUser_thenUserIsUpdated() {
         client.put()
-                .uri("/api/v1/users/1", user.getUserId())
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .bodyValue(
                         """
                                 {
                                     "firstName": "Boke",
                                     "lastName": "Fernandez",
-                                    "email": "Boke@gmail.com",
+                                    "email": "boke@gmail.com",
                                     "password": "password"
                                 }
                         """
@@ -127,21 +140,24 @@ public class ComponentTest {
                                 {
                                   "firstName": "Boke",
                                   "lastName": "Fernandez",
-                                  "email": "Boke@gmail.com"
+                                  "email": "boke@gmail.com"
                                 }
                           """);
 
-        var result = userJpaRepository.findUserByEmail("Boke@gmail.com");
+        var result = userJpaRepository.findUserByEmail("boke@gmail.com");
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("Boke", result.get().getFirstName());
-        Assertions.assertEquals("Boke@gmail.com", result.get().getEmail());
+        Assertions.assertEquals("boke@gmail.com", result.get().getEmail());
     }
 
     @Test
     public void givenUserExists_whenDeleteByIdIsCalled_thenUserIsDeleted() {
         client.delete()
-                .uri("/api/v1/users/1")
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/users")
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 
@@ -152,8 +168,11 @@ public class ComponentTest {
     @Test
     public void givenTodosInDb_whenGetTodosByEmailIsCalled_thenTodosAreReturned() {
         client.get()
-                .uri("/api/v1/todos?email={email}", user.getEmail())
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/todos?email={email}", user.getEmail())
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
@@ -174,8 +193,11 @@ public class ComponentTest {
     @Test
     public void givenNewTodo_whenCreateTodoIsCalled_thenTodoIsPosted() {
         client.post()
-                .uri("/api/v1/todos?email=daniel@gmail.com")
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/todos")
+                .headers(headers -> {
+                        headers.setContentType(MediaType.APPLICATION_JSON);
+                        headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .bodyValue("""
                           {
                              "title": "Ramen wassen",
@@ -205,8 +227,11 @@ public class ComponentTest {
     @Test
     public void givenTodoToUpdate_whenUpdateTodoIsCalled_TodoIsUpdated() {
         client.put()
-                .uri("/api/v1/todos/{id}", todo.getTodoId())
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/todos/{id}", todo.getTodoId())
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .bodyValue("""
                           {
                              "title": "Opruimen",
@@ -237,8 +262,11 @@ public class ComponentTest {
     @Test
     public void givenTodoIdToDelete_whenCallingDeleteTodoById_thenTodoIsDeleted() {
         client.delete()
-                .uri("/api/v1/todos/{id}", todo.getTodoId())
-                .header("Content-Type", "application/json")
+                .uri("/api/v2/todos/{id}", todo.getTodoId())
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 

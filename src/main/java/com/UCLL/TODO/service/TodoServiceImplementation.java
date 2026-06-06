@@ -5,6 +5,7 @@ import com.UCLL.TODO.controller.dto.TodoResponse;
 import com.UCLL.TODO.controller.dto.TodoUpdate;
 import com.UCLL.TODO.controller.dto.UserResponse;
 import com.UCLL.TODO.exception.TodoNotFoundException;
+import com.UCLL.TODO.exception.UnauthorizedException;
 import com.UCLL.TODO.model.Todo;
 import com.UCLL.TODO.model.TodoStatus;
 import com.UCLL.TODO.model.User;
@@ -54,8 +55,12 @@ public class TodoServiceImplementation implements TodoService {
     }
 
     @Override
-    public TodoResponse updateTodo(long id, TodoUpdate todoUpdate) throws TodoNotFoundException {
-        Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoNotFoundException(id));
+    public TodoResponse updateTodo(long todoId, TodoUpdate todoUpdate, String userEmail) throws TodoNotFoundException {
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new TodoNotFoundException(todoId));
+
+        if (!todo.getUser().getEmail().equals(userEmail)) {
+            throw new UnauthorizedException(userEmail);
+        }
 
         todo.setTitle(todoUpdate.title());
         todo.setComment(todoUpdate.comment());
@@ -66,9 +71,10 @@ public class TodoServiceImplementation implements TodoService {
     }
 
     @Override
-    public void deleteTodo(long todoId) throws TodoNotFoundException {
-        if (!todoRepository.existsById(todoId)) {
-            throw new TodoNotFoundException(todoId);
+    public void deleteTodo(long todoId, String userEmail) throws TodoNotFoundException {
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new TodoNotFoundException(todoId));
+        if (!todo.getUser().getEmail().equals(userEmail)) {
+            throw new UnauthorizedException(userEmail);
         }
         this.todoRepository.deleteTodo(todoId);
     }

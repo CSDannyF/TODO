@@ -11,6 +11,6 @@ import java.util.List;
 public interface TodoService {
     List<TodoResponse> getAllTodosByUserEmail(String userEmail);
     TodoResponse createTodo(String userEmail, TodoRequest todoRequest);
-    TodoResponse updateTodo(long id, TodoUpdate todoUpdate);
-    void deleteTodo(long todoId);
+    TodoResponse updateTodo(long id, TodoUpdate todoUpdate, String userEmail);
+    void deleteTodo(long todoId, String userEmail);
 }

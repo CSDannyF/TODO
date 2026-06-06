@@ -2,10 +2,13 @@ package com.UCLL.TODO.service;
 
 import com.UCLL.TODO.controller.dto.UserRegistration;
 import com.UCLL.TODO.controller.dto.UserResponse;
+import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.exception.UserNotFoundException;
 import com.UCLL.TODO.model.User;
 import com.UCLL.TODO.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -13,9 +16,12 @@ import org.springframework.stereotype.Service;
 public class UserServiceImplementation implements UserService {
     private UserRepository userRepository;
 
+    private BCryptPasswordEncoder encoder;
+
     @Autowired
-    public UserServiceImplementation(UserRepository userRepository) {
+    public UserServiceImplementation(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @Override
@@ -25,13 +31,17 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public UserResponse createUser(UserRegistration user) {
+    public UserResponse createUser(UserRegistration user) throws EmailAddressNotUniqueException {
         User user1 =  new User(
                 user.firstName(),
                 user.lastName(),
                 user.email(),
-                user.password());
-        return mapToUserResponse(this.userRepository.saveUser(user1));
+                encoder.encode(user.password()));
+        try {
+            return mapToUserResponse(this.userRepository.saveUser(user1));
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAddressNotUniqueException(user.email());
+        }
     }
 
     @Override
@@ -41,7 +51,7 @@ public class UserServiceImplementation implements UserService {
         user.setFirstName(userUpdate.firstName());
         user.setLastName(userUpdate.lastName());
         user.setEmail(userUpdate.email());
-        user.setPassword(userUpdate.password());
+        user.setHashedPassword(encoder.encode(userUpdate.password()));
 
         return mapToUserResponse(userRepository.saveUser(user));
     }
