@@ -11,6 +11,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class UserServiceImplementation implements UserService {
@@ -22,6 +24,17 @@ public class UserServiceImplementation implements UserService {
     public UserServiceImplementation(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.encoder = encoder;
+    }
+
+    @Override
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAllUsers();
+        return users.stream().map(user -> mapToUserResponse(user)).toList();
+    }
+
+    @Override
+    public UserResponse getUserById(long id) {
+        return mapToUserResponse(this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     @Override
