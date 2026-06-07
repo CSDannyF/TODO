@@ -79,6 +79,15 @@ public class TodoServiceImplementation implements TodoService {
         this.todoRepository.deleteTodo(todoId);
     }
 
+    @Override
+    public TodoResponse getTodoById(long todoId, String userEmail) {
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new TodoNotFoundException(todoId));
+        if (!todo.getUser().getEmail().equals(userEmail)) {
+            throw new UnauthorizedException(userEmail);
+        }
+        return mapToTodoResponse(todo);
+    }
+
     public TodoResponse mapToTodoResponse(Todo todo) {
         return new TodoResponse(todo.getTodoId(), todo.getTitle(), todo.getComment(), todo.getStatus(), todo.getExpiryDate());
     }

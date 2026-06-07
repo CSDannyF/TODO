@@ -274,4 +274,28 @@ public class ComponentTest {
 
         Assertions.assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void givenTodoInDatabase_WhenCallingGetTodoById_ThenTodoIsReturned() {
+        client.get()
+                .uri("/api/v2/todos/{id}" ,1)
+                .headers(headers ->{
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBasicAuth("daniel@gmail.com", "password");
+                })
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json(
+                        """                          
+                                {
+                                     "todoId": 1,
+                                     "title": "Opruimen",
+                                     "comment": "Tuinhuis opruimen",
+                                     "status": "NOT_STARTED"
+                                }                               
+                                """
+                );
+
+    }
 }
