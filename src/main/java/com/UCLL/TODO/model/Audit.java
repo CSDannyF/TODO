@@ -14,8 +14,8 @@ public class Audit {
     @Column(name = "time_stamp")
     private LocalDateTime timeStamp;
 
-    @Column
-    private String user;
+    @Column(name = "user_email")
+    private String userEmail;
 
     @Column
     private String url;
@@ -39,12 +39,12 @@ public class Audit {
         this.timeStamp = timeStamp;
     }
 
-    public String getUser() {
-        return user;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserEmail(String user) {
+        this.userEmail = user;
     }
 
     public String getUrl() {

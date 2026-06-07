@@ -18,7 +18,7 @@ public class AuditListener {
     @RabbitListener(queues = RabbitConfig.AUDIT_QUEUE)
     public void receiveAuditMessage(AuditMessage auditMessage) {
         Audit audit = new Audit();
-        audit.setUser(auditMessage.userEmail());
+        audit.setUserEmail(auditMessage.userEmail());
         audit.setUrl(auditMessage.url());
         audit.setHttpMethod(auditMessage.httpMethod());
         audit.setTimeStamp(auditMessage.timeStamp());
