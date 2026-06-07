@@ -1,0 +1,10 @@
+services:
+  rabbitmq:
+    image: 'rabbitmq:4'
+    environment:
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - '5672:5672'
+      # Voor management UI op poord 15672:
+      # - '15672:15672'

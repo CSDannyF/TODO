@@ -30,9 +30,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) ->
                         authorize
                                 .requestMatchers(HttpMethod.POST, "/api/v2/users").permitAll()
+                                .requestMatchers("/h2-console/**").permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         httpSecurity.userDetailsService(customUserDetailsService);
         return httpSecurity.build();
