@@ -4,8 +4,6 @@ import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.exception.TodoNotFoundException;
 import com.UCLL.TODO.exception.UnauthorizedException;
 import com.UCLL.TODO.exception.UserNotFoundException;
-import org.springframework.context.MessageSource;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

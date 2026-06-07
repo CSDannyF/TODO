@@ -5,6 +5,7 @@ import com.UCLL.TODO.controller.dto.UserRegistration;
 import com.UCLL.TODO.controller.dto.UserResponse;
 import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.exception.UserNotFoundException;
+import com.UCLL.TODO.service.AuditService;
 import com.UCLL.TODO.service.CustomUserDetailsService;
 import com.UCLL.TODO.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +34,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
+
+    @MockitoBean
+    private AuditService auditService;
 
     @Autowired
     private ObjectMapper objectMapper;
