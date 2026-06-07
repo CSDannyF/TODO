@@ -1,6 +1,5 @@
 package com.UCLL.TODO.controller.dto;
 
-import com.UCLL.TODO.model.TodoStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

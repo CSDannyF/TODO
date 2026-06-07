@@ -1,7 +1,6 @@
 package com.UCLL.TODO.service;
 
 import com.UCLL.TODO.config.RabbitConfig;
-import com.UCLL.TODO.model.messaging.AuditListener;
 import com.UCLL.TODO.model.messaging.AuditMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -10,11 +9,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class AuditServiceImpl implements AuditService {
+public class AuditServiceImplementation implements AuditService {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public AuditServiceImpl(RabbitTemplate rabbitTemplate) {
+    public AuditServiceImplementation(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 

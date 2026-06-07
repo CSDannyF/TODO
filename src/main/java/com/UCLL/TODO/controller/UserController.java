@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -45,18 +47,21 @@ public class UserController {
     }
 
     @GetMapping("/me")
+    //@PreAuthorize("#jwt.subject == '' + #id")
     public UserResponse getLoggedInUser(Authentication authentication) {
         return userService.getUserByEmail(authentication.getName());
     }
 
     @PostMapping
+    //@PreAuthorize("principal.subject == '' + #id")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@Valid @RequestBody UserRegistration user) throws EmailAddressNotUniqueException {
+    public UserResponse createUser(@Valid @RequestBody UserRegistration user, @AuthenticationPrincipal Jwt jwt) throws EmailAddressNotUniqueException {
         auditService.sendAuditMessage(user.email(), httpServletRequest.getRequestURI(), httpServletRequest.getMethod());
         return userService.createUser(user);
     }
 
     @PutMapping
+    //@PreAuthorize("principal.subject == '' + #id")
     public UserResponse updateUser(@Valid @RequestBody UserRegistration user,
                                    Authentication authentication) {
         var authUser = userService.getUserByEmail(authentication.getName());

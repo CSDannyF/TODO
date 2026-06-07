@@ -6,7 +6,6 @@ import com.UCLL.TODO.exception.EmailAddressNotUniqueException;
 import com.UCLL.TODO.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
     List<UserResponse> getAllUsers();
