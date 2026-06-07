@@ -3,6 +3,8 @@ package com.UCLL.TODO.controller;
 import com.UCLL.TODO.controller.dto.TodoRequest;
 import com.UCLL.TODO.controller.dto.TodoResponse;
 import com.UCLL.TODO.controller.dto.TodoUpdate;
+import com.UCLL.TODO.exception.TodoNotFoundException;
+import com.UCLL.TODO.exception.UnauthorizedException;
 import com.UCLL.TODO.exception.UserNotFoundException;
 import com.UCLL.TODO.service.AuditService;
 import com.UCLL.TODO.service.TodoService;
@@ -34,6 +36,11 @@ public class TodoController
     public List<TodoResponse> getTodosByEmail(Authentication authentication) throws UserNotFoundException {
         auditService.sendAuditMessage(authentication.getName(), httpServletRequest.getRequestURI(), httpServletRequest.getMethod());
         return todoService.getAllTodosByUserEmail(authentication.getName());
+    }
+    @GetMapping("/{id}")
+    public TodoResponse getTodoById(Authentication authentication, @PathVariable long id) throws UnauthorizedException, TodoNotFoundException {
+        auditService.sendAuditMessage(authentication.getName(), httpServletRequest.getRequestURI(), httpServletRequest.getMethod());
+        return todoService.getTodoById(id, authentication.getName());
     }
 
     @PostMapping
